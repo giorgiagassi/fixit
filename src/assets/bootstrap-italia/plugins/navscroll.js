@@ -90,7 +90,8 @@ class NavScroll extends BaseComponent {
     }
 
     SelectorEngine.find(SELECTOR_LINK_CLICKABLE, this._element).forEach((link) => {
-      link.addEventListener('click', () => {
+      link.addEventListener('click', (event) => {
+        event.preventDefault();
         const scrollHash = () => this._scrollToHash(link.hash);
         if (this._isCollapseOpened) {
           this._callbackQueue.push(scrollHash);
@@ -171,9 +172,6 @@ class NavScroll extends BaseComponent {
   }
 
   _updateProgress(content) {
-    if (!content) {
-      return
-    }
     const progressBars = SelectorEngine.find(SELECTOR_PROGRESS_BAR);
     if (progressBars) {
       const offset = Math.abs(content.getBoundingClientRect().top);
@@ -195,9 +193,6 @@ class NavScroll extends BaseComponent {
 
   _onScroll() {
     const sectionsContainerTop = this._sectionContainer ? this._sectionContainer.offsetTop : 0;
-    if (typeof document === 'undefined') {
-      return
-    }
     const scrollDistance = document.scrollingElement.scrollTop - sectionsContainerTop;
 
     const navItems = SelectorEngine.find(SELECTOR_LINK, this._element);
@@ -244,9 +239,11 @@ class NavScroll extends BaseComponent {
  * ------------------------------------------------------------------------
  */
 
-const navs = SelectorEngine.find(SELECTOR_NAVSCROLL);
-navs.map((nav) => {
-  NavScroll.getOrCreateInstance(nav);
+onDocumentScroll(() => {
+  const navs = SelectorEngine.find(SELECTOR_NAVSCROLL);
+  navs.map((nav) => {
+    NavScroll.getOrCreateInstance(nav);
+  });
 });
 
 export { NavScroll as default };

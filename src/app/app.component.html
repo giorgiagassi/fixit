@@ -1,6 +1,7 @@
-<app-header *ngIf="authService.isLoggedIn"></app-header>
-
+<app-header ></app-header>
+<div class="pb-5 p-5">
 <router-outlet />
+</div>
 <app-footer></app-footer>
 <div class="card flex justify-content-center" *ngIf="loading">
   <p-progressSpinner ariaLabel="loading"></p-progressSpinner>

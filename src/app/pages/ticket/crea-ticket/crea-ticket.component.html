@@ -1,0 +1,44 @@
+<div class="container">
+  <!-- TITOLO -->
+  <h2 class="text-center">CREA NUOVO TICKET</h2>
+  <hr class="hr-blu text-center mb-5">
+
+  <!-- FORM PER LA CREAZIONE DEL TICKET -->
+  <div class="riquadro-azzurro rounded animate__animated animate__fadeIn p-4">
+    <form (ngSubmit)="createTicket()">
+      <div class="mb-3">
+        <label for="oggetto" class="form-label">Oggetto</label>
+        <input type="text" id="oggetto" class="form-control" [(ngModel)]="ticket.oggetto" name="oggetto" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="testo" class="form-label">Descrizione</label>
+        <textarea id="testo" class="form-control" [(ngModel)]="ticket.testo" name="testo" required></textarea>
+      </div>
+
+      <div class="mb-3">
+        <label for="urgenza" class="form-label">Urgenza</label>
+        <select id="urgenza" class="form-select" [(ngModel)]="ticket.urgenza" name="urgenza" required>
+          <option value="Bassa">Bassa</option>
+          <option value="Media">Media</option>
+          <option value="Alta">Alta</option>
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label for="tipologia" class="form-label">Tipologia</label>
+        <select id="tipologia" class="form-select" [(ngModel)]="ticket.tipologia" name="tipologia" required>
+          <option value="PC">PC</option>
+          <option value="Mail">Mail</option>
+          <option value="Sistema">Sistema</option>
+          <option value="Installazione software">Installazione software</option>
+          <option value="Assistenza tecnica">Assistenza tecnica</option>
+          <option value="Altro">Altro</option>
+        </select>
+      </div>
+
+      <!-- PULSANTE PER INVIARE IL FORM -->
+      <button type="submit" class="btn btn-primary">Crea Ticket</button>
+    </form>
+  </div>
+</div>

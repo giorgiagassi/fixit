@@ -1,16 +1,11 @@
-import {Injectable} from '@angular/core';
-import {Router} from "@angular/router";
+import { Injectable } from '@angular/core';
+import { Router } from "@angular/router";
 import Swal from 'sweetalert2';
-import {
-  createUserWithEmailAndPassword,
-  getAuth,
-  sendPasswordResetEmail,
-  signInWithEmailAndPassword,
-  signOut
-} from "firebase/auth";
-import {initializeApp} from "firebase/app";
-import {get, getDatabase, ref, set} from 'firebase/database';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, signOut } from "firebase/auth";
+import { initializeApp } from "firebase/app";
+import { getDatabase, ref, set, get } from 'firebase/database';
 import {environment} from "../enviroments/enviroments";
+
 
 
 const firebaseApp = initializeApp(environment.firebaseConfig);
@@ -22,7 +17,6 @@ const database = getDatabase(firebaseApp);
 })
 export class AuthService {
   loading: boolean = false;
-
   constructor(private router: Router) {
     auth.onAuthStateChanged((user) => {
       if (user) {
@@ -51,13 +45,23 @@ export class AuthService {
           sessionStorage.setItem('user', JSON.stringify(userData));
         }
 
-        await Swal.fire({title: 'Login avvenuto con successo', icon: "success"});
+        Swal.fire({
+          title: 'Login avvenuto con successo',
+          icon: 'success'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.location.reload();
+          }
+        });
+
+        await this.router.navigate(['/home']);
 
       }
     } catch (error: any) {
       console.error("Errore di login:", error);
       this.errorMessage(error.code);
-    } finally {
+    }
+    finally {
       this.loading = false;
     }
   }
@@ -70,7 +74,7 @@ export class AuthService {
     } catch (error: any) {
       console.error("Errore nel reset della password:", error);
       this.errorMessage(error.code);
-    } finally {
+    }finally {
       this.loading = false;
     }
   }
@@ -81,11 +85,18 @@ export class AuthService {
       await signOut(auth);
       sessionStorage.removeItem('user');
       Swal.fire({title: 'Logout avvenuto con successo', icon: "success"});
+      sessionStorage.removeItem('user');
+      sessionStorage.removeItem('user');
+
       this.router.navigate(['login']);
     } catch (error: any) {
-      console.error("Errore nel logout:", error);
+      Swal.fire({  // Gestisci errori specifici con Swal
+        icon: 'error',
+        title: 'Errore durante la registrazione',
+        text: 'Non è stato possibile completare la registrazione. Riprova più tardi.'
+      });
       this.errorMessage(error.code);
-    } finally {
+    }finally {
       this.loading = false;
     }
   }
@@ -101,17 +112,23 @@ export class AuthService {
         await set(ref(database, 'users/' + user.uid), {
           name: name,
           surname: surname,
-          email: user.email, // Utilizza l'email dall'oggetto user per assicurarti che sia quella verificata
+          email: user.email,
           role: role,
+
         });
 
 
       }
       Swal.fire({title: 'Registrazione avvenuta con successo', icon: "success"});
     } catch (error: any) {
-      console.error("Errore nella creazione dell'utente:", error);
+      Swal.fire({  // Gestisci errori specifici con Swal
+        icon: 'error',
+        title: 'Errore durante la registrazione',
+        text: 'Non è stato possibile completare la registrazione. Riprova più tardi.'
+      });
       this.errorMessage(error.code);
-    } finally {
+    }
+    finally {
       this.loading = false;
     }
   }
@@ -142,13 +159,14 @@ export class AuthService {
   }
 
   get isLoggedIn(): boolean {
-    const user = JSON.parse(sessionStorage.getItem('user') || 'null');
-    return user !== null;
+    const sessionUser = JSON.parse(sessionStorage.getItem('user') || 'null');
+    const localUser = JSON.parse(localStorage.getItem('user') || 'null');
+    return sessionUser !== null || localUser !== null;
   }
 
   getUserDetails() {
     const user = JSON.parse(sessionStorage.getItem('user')!);
-    return user ? {name: user.name, surname: user.surname, role: user.role, id: user.uid} : null;
+    return user ? { name: user.name, surname: user.surname, role: user.role, id: user.uid} : null;
   }
 
 }

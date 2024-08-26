@@ -12,9 +12,6 @@ class TrackFocus {
 
   // Private
   _bindEvents() {
-    if (typeof document === 'undefined') {
-      return
-    }
     const events = ['keydown', 'mousedown'];
     events.forEach((evtName) => {
       document.addEventListener(evtName, (evt) => {

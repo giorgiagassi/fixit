@@ -132,14 +132,12 @@ const createInput = (element) => {
   return null
 };
 
-if (typeof document !== 'undefined') {
-  document.addEventListener('dragenter', function (evt) {
-    createInput(evt.target);
-  });
-  EventHandler.on(document, EVENT_CLICK_DATA_API, SELECTOR_FORM + ' label', function () {
-    createInput(this);
-  });
-}
+document.addEventListener('dragenter', function (evt) {
+  createInput(evt.target);
+});
+EventHandler.on(document, EVENT_CLICK_DATA_API, SELECTOR_FORM + ' label', function () {
+  createInput(this);
+});
 
 export { UploadDragDrop as default };
 //# sourceMappingURL=upload-dragdrop.js.map

@@ -1,0 +1,114 @@
+<div class="container-fluid my-5">
+  <h3 class="text-center">Lista Tickets</h3>
+  <hr>
+
+  <div class="card text-center">
+    <p-table
+      #dt1
+      [value]="ticket"
+      dataKey="nome"
+      [rows]="10"
+      [showCurrentPageReport]="true"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [loading]="loading"
+      [paginator]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+      [globalFilterFields]="['id, tipologia, oggetto, testo, urgenza, stato']"
+    >
+      <ng-template pTemplate="caption">
+        <div class="row justify-content-between">
+          <div class="col-3">
+            <input
+              pInputText
+              type="text"
+              (input)="applyFilter($event)"
+              placeholder="Cerca" />
+
+          </div>
+          <div class="col-4">
+            <p-button label="Crea Nuovo" [raised]="true" [rounded]="true" class="p-2 float-end" size="small" routerLink="/crea-utente"></p-button>
+          </div>
+        </div>
+      </ng-template>
+
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th>ID</th>
+          <th>Stato</th>
+          <th>Tipologia</th>
+          <th>Oggetto</th>
+          <th>Descrizione</th>
+          <th>Urgenza</th>
+          <th>Creato da</th>
+          <th>Azioni</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-customer>
+        <tr>
+          <td class="text-center">
+            {{customer.cron}}
+          </td>
+          <td class="text-center">
+            <p-tag *ngIf="customer.Stato === 'Chiuso'" severity="success" value="Chiuso"/>
+            <p-tag *ngIf="customer.Stato === 'In Lavorazione'" severity="info" value="In Lavorazione"/>
+            <p-tag  *ngIf="customer.Stato === 'Aperto'" severity="danger" value="Aperto"/>
+          </td>
+          <td class="text-center">
+            {{customer.tipologia}}
+          </td>
+          <td class="text-center">
+            {{customer.oggetto}}
+          </td>
+          <td class="text-center">
+            {{customer.testo}}
+          </td>
+          <td class="text-center">
+            <p-tag *ngIf="customer.urgenza === 'Bassa'" severity="success" value="Bassa"/>
+            <p-tag *ngIf="customer.urgenza === 'Media'" severity="warning" value="Media"/>
+            <p-tag  *ngIf="customer.urgenza === 'Alta'" severity="danger" value="Alta"/>
+          </td>
+          <td class="text-center">
+            {{customer.utente}}
+          </td>
+
+          <p-button  *ngIf="customer.Stato === 'Aperto'"  label="Lavora" severity="warning" class="p-2" (click)="lavoraTicket(customer.id)"></p-button>
+          <p-button  *ngIf="customer.Stato === 'In Lavorazione'"  label="Termina" severity="danger" class="p-2" (click)="terminaTicket(customer.id)"></p-button>
+          <p-button label="Dettaglio" severity="info" (onClick)="showDialog(customer)"></p-button>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="7">Nessun elemento trovato.</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+<p-dialog
+  header="Dettaglio Ticket"
+  [modal]="true"
+  [(visible)]="visible"
+  [style]="{ width: '50rem' }"
+  [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
+  [maximizable]="true">
+  <div *ngIf="selectedTicket">
+    <p><strong>ID:</strong> {{selectedTicket.cron}}</p>
+    <p><strong>Stato:</strong> {{selectedTicket.Stato}}</p>
+    <p><strong>Tipologia:</strong> {{selectedTicket.tipologia}}</p>
+    <p><strong>Oggetto:</strong> {{selectedTicket.oggetto}}</p>
+    <p><strong>Descrizione:</strong> {{selectedTicket.testo}}</p>
+    <p><strong>Urgenza:</strong> {{selectedTicket.urgenza}}</p>
+    <p><strong>Creato da:</strong> {{selectedTicket.utente}}</p>
+    <p><strong>Data Creazione:</strong> {{selectedTicket.dataCreazione}}</p>
+    <div *ngIf="selectedTicket.Stato  !== 'Aperto'">
+      <p><strong>Lavorato da:</strong> {{selectedTicket.utenteLavorazione}}</p>
+      <p><strong>Data Lavorazione:</strong> {{selectedTicket.dataLavorazione}}</p>
+    </div>
+    <div *ngIf="selectedTicket.Stato  === 'Chiuso'">
+      <p><strong>Chiuso da:</strong> {{selectedTicket.utenteChiusura}}</p>
+      <p><strong>Data Chiusura:</strong> {{selectedTicket.dataLavorazione}}</p>
+    </div>
+    <!-- Aggiungi altri dettagli come necessario -->
+  </div>
+</p-dialog>

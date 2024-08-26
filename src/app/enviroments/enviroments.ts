@@ -3,6 +3,7 @@ export const environment = {
   firebaseConfig: {
     apiKey: "AIzaSyCh1NV4NTezyDQrzJ9F3k7VGPjUqHc6zP4",
     authDomain: "fixit-da993.firebaseapp.com",
+    databaseURL: "https://fixit-da993-default-rtdb.europe-west1.firebasedatabase.app",
     projectId: "fixit-da993",
     storageBucket: "fixit-da993.appspot.com",
     messagingSenderId: "404251801512",

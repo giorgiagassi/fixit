@@ -1,0 +1,63 @@
+<div class="container my-5">
+  <h3 class="text-center">Lista Utenti</h3>
+  <hr>
+
+  <div class="card text-center">
+    <p-table
+      #dt1
+      [value]="utenti"
+      dataKey="nome"
+      [rows]="10"
+      [showCurrentPageReport]="true"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [loading]="loading"
+      [paginator]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+      [globalFilterFields]="['name, surname']"
+    >
+      <ng-template pTemplate="caption">
+        <div class="row justify-content-between">
+          <div class="col-3">
+            <input
+              pInputText
+              type="text"
+              (input)="applyFilter($event)"
+              placeholder="Cerca" />
+
+          </div>
+          <div class="col-4">
+            <p-button label="Crea Nuovo" [raised]="true" [rounded]="true" class="p-2 float-end" size="small" routerLink="/crea-utente"></p-button>
+          </div>
+        </div>
+      </ng-template>
+
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th >
+
+              Nominativo
+
+          </th>
+
+          <th>Azioni</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-customer>
+        <tr>
+          <td class="text-center">
+            {{customer.surname}} {{customer.name}}
+          </td>
+
+          <p-button (click)="addCustomer(customer)" label="Modifica" severity="info" class="p-2"></p-button>
+          <p-button (click)="deleteCustomer(customer)" label="Elimina" severity="danger"></p-button>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="7">Nessun elemento trovato.</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>

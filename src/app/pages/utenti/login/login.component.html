@@ -1,0 +1,59 @@
+<div class="container my-5">
+
+  <div class="row shadow-lg" style="border-radius:7px;">
+
+    <div class="col-lg-7 p-5 col-sm-12 nascosto-cell" style="background-color: #ADD6FF; border-top-left-radius: 7px; border-bottom-left-radius: 7px;">
+
+      <div class="mt-5">
+        <h3 class="p-0 m-0">Benvenuto su FixIT</h3>
+        <h5>Modulo gestionale per per ticket informatici</h5>
+
+        <ul class="mt-4">
+          <li>Come creare un ticket</li>
+          <li>Come oprendere in carico un ticket</li>
+          <li>Come chiudere un ticket</li>
+
+        </ul>
+      </div>
+
+    </div>
+
+    <div class="col-lg-5 p-5 col-sm-12 bordi-cell"  style="background-color: #D6EBFF; border-top-right-radius: 7px; border-bottom-right-radius: 7px;">
+
+      <h2 class="text-center">ACCESSO UTENTE</h2>
+
+      <div>
+
+        <div class="row mt-5">
+          <div class="form-group">
+            <label class="active" for="inputEmail4">Email</label>
+            <input type="email" class="form-control" id="inputEmail4" placeholder="Inserisci il tuo indirizzo email" #userName>
+          </div>
+
+        </div>
+        <div class="row">
+          <div class="form-group">
+            <label class="active" for="exampleInputPassword">Password</label>
+            <input type="password" data-bs-input class="form-control input-password" id="exampleInputPassword" placeholder="Inserisci la tua password" #userPassword>
+            <span class="password-icon" aria-hidden="true">
+                          <svg class="password-icon-visible icon icon-sm d-none me-3 p-0"><use href="src/assets/bootstrap-italia/svg/sprites.svg#it-password-visible"></use></svg>
+                          <svg class="password-icon-invisible icon icon-sm d-none me-3 p-0"><use href="src/assets/bootstrap-italia/svg/sprites.svg#it-password-invisible"></use></svg>
+                        </span>
+          </div>
+        </div>
+        <div class="row justify-content-center">
+          <div class="col">
+            <div class="d-grid gap-2">
+              <button class="btn btn-primary btn-me" type="button" style="margin-left:12px" (click)="accedi(userName.value, userPassword.value)">Accedi</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+</div>

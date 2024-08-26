@@ -26,7 +26,7 @@ class InputLabel {
   }
 
   static getInputFromLabel = (labelElement) => {
-    return document.querySelector('#' + CSS.escape(labelElement.getAttribute('for')))
+    return document.querySelector('#' + labelElement.getAttribute('for'))
   }
 
   // Public
@@ -39,10 +39,7 @@ class InputLabel {
       this._labelOut();
       this._labelOver();
     }
-
-    if (label && label.getAttribute('it-bs-static') === null) {
-      this._bindEvents();
-    }
+    this._bindEvents();
   }
 
   _bindEvents() {
