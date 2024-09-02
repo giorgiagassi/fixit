@@ -17,16 +17,25 @@
     >
       <ng-template pTemplate="caption">
         <div class="row justify-content-between">
-          <div class="col-3">
+          <div class="col-2">
             <input
               pInputText
               type="text"
               (input)="applyFilter($event)"
               placeholder="Cerca" />
-
           </div>
-          <div class="col-4">
-            <p-button label="Crea Nuovo" [raised]="true" [rounded]="true" class="p-2 float-end" size="small" routerLink="/crea-utente"></p-button>
+
+          <div class="col-3">
+            <p-button label="Crea Nuovo" [raised]="true" [rounded]="true" class="p-2 float-end" size="small" routerLink="/crea-ticket"></p-button>
+          </div>
+          <div class="col-3">
+            <p-button *ngIf="role === 'operatore'" label="Tickets assegnati" [raised]="true" [rounded]="true" class="p-2 float-end" size="small" (click)="toggleMyTicketsFilter()"></p-button>
+          </div>
+          <div class="col-3">
+            <p-button *ngIf="role === 'operatore'" label="Tickets creati" [raised]="true" [rounded]="true" class="p-2 float-end" size="small" (click)="toggleMyTicketsFilterCreati()"></p-button>
+          </div>
+          <div class="col-1">
+            <p-button *ngIf="role === 'operatore'"  icon="pi pi-filter-slash" (onClick)="getTipoList()" class="p-2 float-end" size="small"/>
           </div>
         </div>
       </ng-template>
@@ -41,6 +50,7 @@
           <th>Descrizione</th>
           <th>Urgenza</th>
           <th>Creato da</th>
+          <th>Assegnato a</th>
           <th>Azioni</th>
         </tr>
       </ng-template>
@@ -71,10 +81,13 @@
           <td class="text-center">
             {{customer.utente}}
           </td>
-
-          <p-button  *ngIf="customer.Stato === 'Aperto'"  label="Lavora" severity="warning" class="p-2" (click)="lavoraTicket(customer.id)"></p-button>
-          <p-button  *ngIf="customer.Stato === 'In Lavorazione'"  label="Termina" severity="danger" class="p-2" (click)="terminaTicket(customer.id)"></p-button>
-          <p-button label="Dettaglio" severity="info" (onClick)="showDialog(customer)"></p-button>
+          <td class="text-center">
+            {{customer.assignedTo?.name}}  {{customer.assignedTo?.surname}}
+          </td>
+          <button type="button" class="btn btn-primary me-2" *ngIf="customer.Stato === 'Aperto' && role === 'admin'" (click)="showAssignDialog(customer)">Assegna</button>
+          <button type="button" class="btn complementary-2-bg white-color me-2" *ngIf="customer.Stato === 'Aperto' && role !== 'user'"    (click)="lavoraTicket(customer.id)">Lavora</button>
+          <button type="button" class="btn btn-danger me-2" *ngIf="customer.Stato === 'In Lavorazione'  && role !== 'user'"  (click)="terminaTicket(customer.id)">Termina</button>
+          <button type="button" class="btn btn-outline-secondary " (click)="showDialog(customer)">Dettaglio</button>
         </tr>
       </ng-template>
       <ng-template pTemplate="emptymessage">
@@ -101,14 +114,51 @@
     <p><strong>Urgenza:</strong> {{selectedTicket.urgenza}}</p>
     <p><strong>Creato da:</strong> {{selectedTicket.utente}}</p>
     <p><strong>Data Creazione:</strong> {{selectedTicket.dataCreazione}}</p>
+    <p *ngIf="selectedTicket.assignedTo && selectedTicket.assignedTo.name && selectedTicket.assignedTo.surname"><strong>Assegnato a :</strong> {{selectedTicket.assignedTo?.name}} {{selectedTicket.assignedTo?.surname}}</p>
     <div *ngIf="selectedTicket.Stato  !== 'Aperto'">
       <p><strong>Lavorato da:</strong> {{selectedTicket.utenteLavorazione}}</p>
       <p><strong>Data Lavorazione:</strong> {{selectedTicket.dataLavorazione}}</p>
     </div>
+    <div *ngIf="selectedTicket.Stato === 'In Lavorazione'  && role !== 'user'">
+      <p><strong>Nota Lavorazione:</strong></p>
+      <textarea [(ngModel)]="selectedTicket.notaLavorazione" rows="4" cols="50"></textarea>
+      <p-button label="Salva Nota" (click)="salvaNotaLavorazione(selectedTicket.id)"></p-button>
+    </div>
+
     <div *ngIf="selectedTicket.Stato  === 'Chiuso'">
       <p><strong>Chiuso da:</strong> {{selectedTicket.utenteChiusura}}</p>
       <p><strong>Data Chiusura:</strong> {{selectedTicket.dataLavorazione}}</p>
+      <p><strong>Nota Lavorazione: {{selectedTicket.notaLavorazione}}</strong></p>
     </div>
-    <!-- Aggiungi altri dettagli come necessario -->
   </div>
+</p-dialog>
+<!-- Dialogo per assegnare un operatore al ticket -->
+<p-dialog header="Assegna Ticket" [(visible)]="assignDialogVisible" [modal]="true"  [style]="{ width: '50rem', height: '70rem' }"
+          [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
+          [maximizable]="true">
+  <div class="card flex justify-content-center">
+    <p-dropdown
+      [options]="operators"
+      [(ngModel)]="selectedOperator"
+      optionLabel="name"
+      [filter]="true"
+      filterBy="name"
+      [showClear]="true"
+      placeholder="Seleziona un operatore">
+      <ng-template pTemplate="selectedItem" let-selectedOption>
+        <div class="flex align-items-center gap-2">
+          <div>{{ selectedOption.name }} {{ selectedOption.surname }}</div>
+        </div>
+      </ng-template>
+      <ng-template let-operator pTemplate="item">
+        <div class="flex align-items-center gap-2">
+          <div>{{ operator.name }} {{ operator.surname }}</div>
+        </div>
+      </ng-template>
+    </p-dropdown>
+  </div>
+  <p-footer>
+    <button type="button" class="btn btn-primary me-3" (click)="assignTicket()">Assegna</button>
+    <button type="button" class="btn btn-secondary" (click)="assignDialogVisible=false">Annulla</button>
+  </p-footer>
 </p-dialog>

@@ -22,7 +22,9 @@ export class CreaTicketComponent implements OnInit{
     tipologia: 'PC',
     utente: '',
     dataCreazione:'',
-    Stato: 'Aperto'
+    Stato: 'Aperto',
+    notaLavorazione: '',
+    assignedTo: '',
   };
 
   constructor(private ticketService: TicketService,

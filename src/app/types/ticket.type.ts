@@ -7,4 +7,6 @@ export type TicketType = {
   utente: string | null;
   dataCreazione: string | null;
   Stato: string | null;
+  notaLavorazione?: string | null;
+  assignedTo?: string | null;
 }

@@ -85,7 +85,7 @@
                   <ul class="navbar-nav" *ngIf="authService.isLoggedIn" >
                     <li class="nav-item"><a class="nav-link" [routerLink]="['/home']" aria-current="page" [routerLinkActive]="['active']"><span>Home</span></a></li>
                     <li class="nav-item"><a class="nav-link" [routerLink]="['/crea-ticket']"  aria-current="page" [routerLinkActive]="['active']" ><span>Crea Ticket</span></a></li>
-                    <li class="nav-item"><a class="nav-link"  [routerLink]="['/lista-ticket']" aria-current="page" [routerLinkActive]="['active']" ><span>Lista Ticket</span></a></li>
+                    <li class="nav-item"><a class="nav-link"  [routerLink]="['/lista-ticket']" aria-current="page" [routerLinkActive]="['active']" ><span>Lista Tickets</span></a></li>
                     <li class="nav-item"><a class="nav-link"  [routerLink]="['/lista-utenti']" aria-current="page" [routerLinkActive]="['active']"  *ngIf="role === 'admin'"><span>Lista Utenti</span></a></li>
                   </ul>
                 </div>

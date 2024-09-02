@@ -11,6 +11,8 @@ import {TagModule} from "primeng/tag";
 import {NgIf} from "@angular/common";
 import {AuthService} from "../../../providers/auth.service";
 import {DialogModule} from "primeng/dialog";
+import {FormsModule} from "@angular/forms";
+import {DropdownModule} from "primeng/dropdown";
 const app = initializeApp(environment.firebaseConfig);
 const database = getDatabase(app);
 @Component({
@@ -24,7 +26,9 @@ const database = getDatabase(app);
     TableModule,
     TagModule,
     NgIf,
-    DialogModule
+    DialogModule,
+    FormsModule,
+    DropdownModule
   ],
   templateUrl: './lista-ticket.component.html',
   styleUrl: './lista-ticket.component.css'
@@ -35,8 +39,15 @@ export class ListaTicketComponent implements OnInit{
   ticket:any;
   loading: boolean = false;
   currentUser: string = '';
+  currentUserID: string = '';
+  role: string = '';
   visible: boolean = false;
   selectedTicket: any = null;
+  operators: any[] = [];
+  selectedOperator: string = '';
+  assignDialogVisible: boolean = false;
+  filterMyTickets: boolean = false;
+  filteredTickets: any;
   constructor(private router: Router,
               private authService: AuthService
 
@@ -45,6 +56,7 @@ export class ListaTicketComponent implements OnInit{
   ngOnInit(): void {
     this.getTipoList();
     this.loadUserDetails();
+    this.getOperatorsList();
   }
 
   async getTipoList() {
@@ -52,31 +64,31 @@ export class ListaTicketComponent implements OnInit{
     try {
       const snapshot = await get(huntersRef);
       if (snapshot.exists()) {
-        // La lista è stata trovata nel database, puoi accedere ai dati
-        const data = snapshot.val();
-        this.ticket = Object.keys(data).map(key => ({ ...data[key], id: key }));
+        let allTickets = Object.keys(snapshot.val()).map(key => ({ ...snapshot.val()[key], id: key }));
+        if (this.role === 'user') {
+          allTickets = allTickets.filter(ticket => ticket.utente === this.currentUser);
+        }
 
-        // Inverti l'array per mostrare dal più recente al meno recente
-        this.ticket.reverse();
-
+        this.ticket = allTickets.reverse();
         console.log('Lista ordinata per ordine di creazione:', this.ticket);
         return this.ticket;
       } else {
-        // La lista non è stata trovata nel database
         console.log('Nessuna lista trovata nel database.');
         return null;
       }
     } catch (error) {
-      // Si è verificato un errore durante il recupero dei dati
       console.error('Errore durante il recupero della lista:', error);
       return null;
     }
   }
 
+
   loadUserDetails() {
     const userDetails = this.authService.getUserDetails();
     if (userDetails) {
       this.currentUser = `${userDetails.name} ${userDetails.surname}`;
+      this.role = userDetails.role;
+      this.currentUserID = userDetails.id;
     }
   }
 
@@ -134,5 +146,117 @@ export class ListaTicketComponent implements OnInit{
   showDialog(ticket: any) {
     this.selectedTicket = ticket;
     this.visible = true;
+  }
+  async salvaNotaLavorazione(ticketId: string) {
+    if (this.selectedTicket && this.selectedTicket.notaLavorazione) {
+      const updates = {
+        notaLavorazione: this.selectedTicket.notaLavorazione
+      };
+      try {
+        await update(ref(database, `tickets/${ticketId}`), updates);
+        this.getTipoList(); // Ricarica la lista dopo l'aggiornamento
+        console.log('Nota di lavorazione aggiornata');
+        this.visible = false; // Chiudi il dialogo dopo il salvataggio
+      } catch (error) {
+        console.error('Errore durante l\'aggiornamento della nota di lavorazione:', error);
+      }
+    }
+  }
+
+
+  async getOperatorsList() {
+    const usersRef = ref(database, 'users'); // Assumi che gli utenti siano salvati sotto 'users'
+    try {
+      const snapshot = await get(usersRef);
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        this.operators = Object.keys(data).map(key => ({
+          ...data[key],
+          id: key
+        })).filter(user => user.role === 'operatore'); // Filtra per ruolo "operatore"
+      } else {
+        console.log('Nessun operatore trovato.');
+      }
+    } catch (error) {
+      console.error('Errore durante il recupero degli operatori:', error);
+    }
+  }
+
+  async assignTicket() {
+    if (this.selectedOperator && this.selectedTicket) {
+      const updates = {
+        assignedTo: this.selectedOperator, // Salva l'operatore selezionato
+      };
+      try {
+        await update(ref(database, `tickets/${this.selectedTicket.id}`), updates);
+        this.getTipoList(); // Ricarica la lista dopo l'aggiornamento
+        console.log('Ticket assegnato a:', this.selectedOperator);
+        this.assignDialogVisible = false; // Chiudi il dialog
+      } catch (error) {
+        console.error('Errore durante l\'assegnazione del ticket:', error);
+      }
+    }
+  }
+
+  showAssignDialog(ticket: any) {
+    this.selectedTicket = ticket;
+    this.assignDialogVisible = true;
+  }
+  async applyFilterOperatore() {
+    const huntersRef = ref(database, 'tickets');
+    try {
+      const snapshot = await get(huntersRef);
+      if (snapshot.exists()) {
+        let allTickets = Object.keys(snapshot.val()).map(key => ({...snapshot.val()[key], id: key}));
+
+        // Filtro per operatore
+        if (this.role === 'operatore') {
+          allTickets = allTickets.filter(ticket => ticket.assignedTo && ticket.assignedTo.id === this.currentUserID);
+        }
+
+        this.ticket = allTickets.reverse();
+        console.log('Lista ordinata per ordine di creazione:', this.ticket);
+        return this.ticket;
+      } else {
+        console.log('Nessuna lista trovata nel database.');
+        return null;
+      }
+    } catch (error) {
+      console.error('Errore durante il recupero della lista:', error);
+      return null;
+    }
+  }
+  toggleMyTicketsFilter() {
+    this.filterMyTickets = !this.filterMyTickets;
+    this.applyFilterOperatore();
+  }
+  async applyFilterOperatoreCreati() {
+    const huntersRef = ref(database, 'tickets');
+    try {
+      const snapshot = await get(huntersRef);
+      if (snapshot.exists()) {
+        let allTickets = Object.keys(snapshot.val()).map(key => ({...snapshot.val()[key], id: key}));
+
+        // Filtro per operatore
+        if (this.role === 'operatore') {
+          allTickets = allTickets.filter(ticket => ticket.utente === this.currentUser);
+        }
+
+        this.ticket = allTickets.reverse();
+        console.log('Lista ordinata per ordine di creazione:', this.ticket);
+        return this.ticket;
+      } else {
+        console.log('Nessuna lista trovata nel database.');
+        return null;
+      }
+    } catch (error) {
+      console.error('Errore durante il recupero della lista:', error);
+      return null;
+    }
+  }
+
+  toggleMyTicketsFilterCreati() {
+
+    this.applyFilterOperatoreCreati();
   }
 }
